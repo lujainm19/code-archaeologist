@@ -42,5 +42,5 @@ QUESTION: {question}"""
 
 # quick manual test, only runs when this file is executed directly 
 if __name__ == "__main__":
-    question = "Why was timeout handling added to httpx?"
+    question = "Why was connection pooling implemented in httpx?"
     print(answer_question(question))   # run the whole pipeline end-to-end and print the answer
