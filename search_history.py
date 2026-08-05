@@ -30,21 +30,30 @@ def search_history(query, n_results=5):
 
 if __name__ == "__main__":
 
-    query = "why was timeout handling added?"  # a sample question to sanity-check our search
-    print(f"Searching for: {query}")   # confirm we even reach this point
+    # to tests whether search holds up across a variety of questions, we can try a few different queries and see what results come back. the goal is to see if it finds relevant chunks even when the wording is different from the original text, or when the question is more about "why" something happened rather than "what" happened.
+    test_queries = [
+        "why was timeout handling added?",           # historical "why" question (already tested, worked well)
+        "how does the connection pooling work?",      # should retrieve the actual code, not just history
+        "what bugs were reported about redirects?",    # tests whether it finds relevant discussion, even with different wording
+        "SSL certificate verification",                 # a more keyword-like query (not even a full sentence), testing a different phrasing style
+    ]
 
-    results = search_history(query)  # actually run the search
-    print(f"Raw results keys: {results.keys()}")           # what fields did we get back at all?
-    print(f"Number of documents found: {len(results['documents'][0])}")   # how many actually came back?
+    for query in test_queries:   # loop through each test question one at a time
 
-     # results["documents"][0] is a list of the matched text, the [0] is because Chroma supports searching multiple queries at once, and we only sent one, so everything relevant lives at index 0
-    for i in range(len(results["documents"][0])):
-        text = results["documents"][0][i]         # the actual chunk text for this result
-        metadata = results["metadatas"][0][i]     # its tags: type, author, sha, etc.
-        distance = results["distances"][0][i]     # how "far" this result is from our question (smaller = more relevant)
+        print(f"\n{'='*60}")     # '='*60 repeats the "=" character 60 times, just a visual separator to make each query's results easy to tell apart in the terminal output
+        print(f"QUERY: {query}")
+        print('='*60)
 
-        print(f"\n--- Result {i+1} (distance: {distance:.3f}) ---") # {distance:.3f} formats the number to 3 decimal places inside the f-string
-        print(f"Type: {metadata.get('type')}")   # what kind of chunk this is (commit, pr_description, pr_comment, or code)
-        print(text[:200])   # print only the first 200 characters, so we don't flood the terminal with one giant chunk
+        results = search_history(query)   # to run search function on all the questions
+
+        # results["documents"][0] is a list of the matched text, the [0] is because Chroma supports searching multiple queries at once, and we only sent one, so everything relevant lives at index 0
+        for i in range(len(results["documents"][0])):
+            text = results["documents"][0][i]         # the actual chunk text for this result
+            metadata = results["metadatas"][0][i]     # its tags: type, author, sha, etc.
+            distance = results["distances"][0][i]     # how "far" this result is from our question (smaller = more relevant)
+
+            print(f"\n--- Result {i+1} (distance: {distance:.3f}) ---")   # {distance:.3f} formats the number to 3 decimal places inside the f-string
+            print(f"Type: {metadata.get('type')}")   # what kind of chunk this is (commit, pr_description, pr_comment, or code)
+            print(text[:200])   # print only the first 200 characters, so we don't flood the terminal with one giant chunk
 
 
