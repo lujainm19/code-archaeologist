@@ -13,7 +13,7 @@ def search_history_tool(query: str) -> str:
     Args:
         query: A natural language question or topic to search for.
     """
-    # this docstring isn't just for humans, Gemini reads it to understand when and why to use this tool, so it needs to be clear and descriptive
+    # this docstring isn't just for humans, the model reads it to understand when and why to use this tool, so it needs to be clear and descriptive
 
     results = search_history(query, n_results=5)   # reuse our already-built search function
 
@@ -68,3 +68,51 @@ if __name__ == "__main__":
     print(read_file_tool("httpx/_client.py")[:500])
     print("\n---\n")
     print(get_pr_tool(490)[:500])
+
+TOOL_SCHEMAS = [
+    # Groq  can't automatically build a tool schema from a function's docstring and type hints, so we have to write out the description and expected
+    # arguments by hand, once per tool, in this specific JSON-like format Groq expects
+
+    {
+        "type": "function",
+        "function": {
+            "name": "search_history_tool",   # must exactly match the real function's name above
+            "description": "Search the httpx repository's commit and PR history for information relevant to a query. Use this to find WHY something was changed, discussions, or historical context.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "A natural language question or topic to search for."}
+                },
+                "required": ["query"],   # tells the model this argument is mandatory, not optional
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_file_tool",
+            "description": "Read the current contents of a specific file in the httpx source code.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {"type": "string", "description": "Path relative to the repo, e.g. httpx/_client.py"}
+                },
+                "required": ["file_path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_pr_tool",
+            "description": "Fetch the full description and comments of a specific pull request by number.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "pr_number": {"type": "integer", "description": "The pull request number, e.g. 490"}
+                },
+                "required": ["pr_number"],
+            },
+        },
+    },
+]

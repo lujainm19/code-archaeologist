@@ -1,17 +1,15 @@
 import os
-from google import genai
+from groq import Groq
+from llm_utils import safe_chat_completion
 
-api_key = os.environ["ARCHAEOLOGIST_API_KEY"]
-client = genai.Client(api_key=api_key)
+client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
 def verify_citations(answer, evidence_log):
     """Checks whether every claim in the answer is actually backed by the evidence gathered."""
-    # this function's ONLY job is to be a skeptical second opinion -- it doesn't
-    # answer the original question at all, it just checks the FIRST answer's work
+    # this function is to be a skeptical second opinion, it doesn't answer the original question, it just checks the 1st answer's work
 
     evidence_text = "\n\n---\n\n".join(evidence_log)
-    # glue every piece of evidence together into one big text block, separated by
-    # dashed lines so it's easy to tell where one piece of evidence ends and the next begins
+    # join every piece of evidence together into one big text block, separated by dashed lines so it's easy to tell where one piece of evidence ends and the next begins
 
     prompt = f"""You are a strict fact-checker. Below is an AI agent's ANSWER, and the EVIDENCE
 it actually gathered while researching. Check whether every factual claim in the answer is
@@ -26,15 +24,15 @@ EVIDENCE:
 
 ANSWER TO CHECK:
 {answer}"""
-    # this prompt gives the model BOTH the original answer AND the raw proof,
-    # and asks it to compare them critically -- it's not answering the question,
-    # it's grading someone else's answer against the evidence
+    # this prompt gives the model both the original answer and the raw proof, and asks it to compare them,
+    #  it's not answering the question, it's grading someone else's(the agents) answer against the evidence
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        # a fast/cheap model is fine here since fact-checking against provided text
-        # is an easier task than the original research + reasoning was
-        contents=prompt,
+    response = safe_chat_completion(
+        client,
+        model="llama-3.3-70b-versatile",
+        # a fast/cheap model is used here since fact-checking against provided text, is an easy task than the original research + reasoning was
+        messages=[{"role": "user", "content": prompt}],
     )
 
-    return response.text   # hand back the verification verdict
+    return response.choices[0].message.content
+    # returns the verification decision, either "VERIFIED" or a list of unsupported claims
