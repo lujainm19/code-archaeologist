@@ -3,14 +3,12 @@ import os                          # for file paths and walking folders
 import re                          # regular expressions, to detect function/class definitions in code
 
 def load_json(path):               # small reusable helper since we load two files the same way
-    with open(path, "r", encoding="utf-8") as f:   # open the file for reading, auto-closes when done
+    with open(path, "r", encoding="utf-8") as f:   # open the file for reading, closes automatically when done
         return json.load(f)        # parse the JSON text back into a Python list/dict
 
-def chunk_python_file(filepath, repo_root):
-    # this function takes ONE .py file and splits it into one chunk per function/class
+def chunk_python_file(filepath, repo_root): # this function takes ONE .py file and splits it into one chunk per function/class
 
-    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
-        # errors="ignore" skips any weird/broken characters instead of crashing on them
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f: # errors="ignore" skips any weird/broken characters instead of crashing on them
         lines = f.readlines()      # readlines() gives us a list, one string per line of the file
 
     pattern = re.compile(r'^(def |class )')
@@ -33,7 +31,7 @@ def chunk_python_file(filepath, repo_root):
 
         end = boundaries[idx + 1] if idx + 1 < len(boundaries) else len(lines)
         # ternary expression (value_if_true if condition else value_if_false):
-        # if there's a NEXT boundary, this chunk ends right before it starts
+        # if there's a NEXT boundary, this chunk ends right before the boundary starts
         # otherwise (this is the last function in the file), it ends at the file's last line
 
         chunk_lines = lines[start:end]     # slice out just the lines belonging to this one chunk
@@ -101,7 +99,7 @@ for pr in prs:
 repo_root = "data/httpx_repo/httpx"   # this is the folder where httpx's actual package code lives
 
 for root, dirs, files in os.walk(repo_root):
-    # os.walk visits every folder recursively, giving us (current_folder, subfolders, files) each time
+    # os.walk visits every folder recursively inside the cloned httpx repo, giving us (current_folder, subfolders, files) each time, and for every file ending in .py, it calls our chunking function on it and adds the results to the master chunks list
     for filename in files:
         if filename.endswith(".py"):   # only process actual Python source files, skip everything else
             filepath = os.path.join(root, filename)   # build the full path to this file

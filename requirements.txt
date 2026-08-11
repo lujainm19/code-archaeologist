@@ -1,0 +1,5 @@
+pydriller
+PyGithub
+chromadb
+sentence-transformers
+groq
