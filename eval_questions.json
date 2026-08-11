@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Why was connection pooling implemented in httpx?",
+    "expected_answer": "To implement HTTP keep-alive, allowing connections to be reused across requests instead of opening a new one each time.",
+    "expected_citation": "PR #4"
+  },
+  {
+    "question": "What PR introduced the ability to disable timeouts entirely?",
+    "expected_answer": "PR #490 introduced timeout=False to disable timeouts completely, as an alternative approach explored alongside PR #463.",
+    "expected_citation": "PR #490"
+  },
+  {
+    "question": "What was PR #463 about?",
+    "expected_answer": "Unifying timeout behavior across httpx's different entry points and clients.",
+    "expected_citation": "PR #463"
+  },
+  {
+    "question": "What function creates the SSL context in httpx?",
+    "expected_answer": "The create_ssl_context function, found in _config.py.",
+    "expected_citation": "_config.py"
+  },
+  {
+    "question": "What issue does PR #801 relate to?",
+    "expected_answer": "Redirect loop protection - specifically not counting the original request toward the redirect loop limit.",
+    "expected_citation": "PR #801"
+  },
+  {
+    "question": "What was fixed in PR #819?",
+    "expected_answer": "It dropped the RedirectLoop exception as part of an API change.",
+    "expected_citation": "PR #819"
+  },
+  {
+    "question": "What did PR #624 do to connection pooling?",
+    "expected_answer": "Refactored the connection pool to more tightly manage connection state.",
+    "expected_citation": "PR #624"
+  },
+  {
+    "question": "What does the verify parameter in httpx's config accept?",
+    "expected_answer": "It can accept an ssl.SSLContext, a string path to certs, or a boolean.",
+    "expected_citation": "PR #1575 or _config.py"
+  }
+]
